@@ -1,39 +1,25 @@
 import React from 'react'
-import  { View, Text, TouchableHighlight, TouchableOpacity, StyleSheet, TextInput} from 'react-native'
+import  {
+    View,
+    Text,
+    StyleSheet,
+    TextInput
+} from 'react-native'
 
-export default function CreateTodoModal({ active, toggleActive }: { active: boolean, toggleActive: Function }) {
+import Button from './Button'
+
+type Props = {
+    active: boolean,
+    toggleActive: Function,
+}
+
+export default function CreateTodoModal({ active, toggleActive }: Props) {
 
     if (!active) return <></>
 
-    const CloseButton = () => {
-        return (
-            <TouchableOpacity style={styles.closeButton} onPress={() => toggleActive()}>
-                <Text style={{ fontSize: 20, color: '#fff' }}>
-                    &times;
-                </Text>
-            </TouchableOpacity>
-        )
-    }
-
-    const CancelButton = () => {
-        return (
-            <TouchableHighlight style={styles.cancelButton} onPress={() => toggleActive()}>
-                <Text style={{ fontSize: 20, color: '#fff' }}>
-                    Cancel
-                </Text>
-            </TouchableHighlight>
-        )
-    }
-
-    const CreateButton = () => {
-        return (
-            <TouchableHighlight style={styles.createButton} onPress={() => toggleActive()}>
-                <Text style={{ fontSize: 20, color: '#fff' }}>
-                    Create Todo
-                </Text>
-            </TouchableHighlight>
-        )
-    }
+    const CloseButton = () => <Button style={styles.closeButton} onPress={toggleActive}>&times;</Button>
+    const CancelButton = () => <Button style={styles.cancelButton} onPress={toggleActive}>Cancel</Button>
+    const CreateButton = () => <Button style={styles.createButton}>Create Todo</Button>
 
     return (
         <View style={styles.superContainer}>
