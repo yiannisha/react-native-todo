@@ -29,7 +29,6 @@ export default function Login ({ navigation }: { navigation: any }) {
         _login,
         _register,
     } = useAuthStateContext()
-    console.log(state.error)
 
     const clearForm = () => setFormData(formDataInitialValue)
 

@@ -13,6 +13,7 @@ const contextInitialValue: AuthStateContextType = {
     state: stateInitialValue,
     _login: (email: string, password: string) => undefined,
     _register: (email, password, passwordConfirm) => undefined,
+    _logout: () => undefined
 }
 
 const AuthStateContext = createContext<AuthStateContextType>(contextInitialValue)
@@ -41,7 +42,8 @@ const AuthStateContextProvider = ({ children }: { children: ReactNode}) => {
     const value: AuthStateContextType = {
         state: authState,
         _login: (email: string, password: string) => _login( email, password, setPending, setError, setToken),
-        _register: (email: string, password: string, passwordConfirm: string) => _register(email, password, passwordConfirm, setPending, setError, setToken)
+        _register: (email: string, password: string, passwordConfirm: string) => _register(email, password, passwordConfirm, setPending, setError, setToken),
+        _logout: () => _logout(setToken),
     }
 
     return (
@@ -58,6 +60,7 @@ const AuthStateContextProvider = ({ children }: { children: ReactNode}) => {
  * @param password 
  * @param setPending function to set the pending state of the request to login.
  * @param setError function to set the error state of the request to login.
+ * @param setToken function to set the current user's auth token.
  */
 async function _login(
         email: string,
@@ -87,6 +90,16 @@ async function _login(
     }
 }
 
+/**
+ * Creates and logs in as user using the pocketbase API.
+ * 
+ * @param email 
+ * @param password 
+ * @param passwordConfirm
+ * @param setPending function to set the pending state of the request to login.
+ * @param setError function to set the error state of the request to login.
+ * @param setToken function to set the current user's auth token.
+ */
 async function _register(
         email: string,
         password: string,
@@ -124,6 +137,18 @@ async function _register(
         setError(error.message)
     }
 
+}
+
+/**
+ * Logs out the last authenticated model.
+ * 
+ * @param setToken function to set the current user's auth token.
+ */
+function _logout (
+    setToken: (token: string | null) => void
+) {
+    pb.authStore.clear()
+    setToken(null)
 }
 
 export {

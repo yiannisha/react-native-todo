@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 
+import { useTodoState } from '../contexts/TodosContext'
 import CreateTodoButton from '../components/CreateTodoButton'
 import CreateTodoModal from '../components/CreateTodoModal'
 
@@ -9,7 +10,10 @@ import { mainStyles } from '../styles/main'
 export default function Todos() {
     
     const [modalActive, setModalActive] = useState(false)
-    
+    const { todos } = useTodoState()
+
+    const todoElems = todos.map(todo => <Text key={todo.id}>{todo.content}</Text>)
+
     return (
         <View style={mainStyles.container}>
             <View style={mainStyles.titleContainer}>
@@ -19,7 +23,7 @@ export default function Todos() {
                 <CreateTodoButton onPress={() => setModalActive(true)} />
             </View>
             <View style={style.todoContainer}>
-                {/* Todos */}
+                { todoElems }
             </View>
             <CreateTodoModal active={modalActive} toggleActive={() => setModalActive(false)}/>
         </View>
