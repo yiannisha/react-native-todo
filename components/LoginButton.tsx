@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleProp, ViewStyle, Text, TouchableHighlight } from 'react-native'
 
-export default function LoginButton ({ style, text, onPress }: { style?: StyleProp<ViewStyle>, text: string, onPress?: Function }) {
+export default function LoginButton ({ style, text, onPress, disabled = false }: { style?: StyleProp<ViewStyle>, text: string, onPress?: Function, disabled?: boolean }) {
         
     var buttonStyle: StyleProp<ViewStyle> = {
         width: 140,
@@ -10,7 +10,7 @@ export default function LoginButton ({ style, text, onPress }: { style?: StylePr
         paddingTop: 10,
         paddingBottom: 10,
         borderRadius: 15,
-        backgroundColor: '#A9DBFF',
+        backgroundColor: disabled ? '#979797':'#A9DBFF',
         justifyContent: 'center',
         alignItems: 'center',
     }
@@ -20,6 +20,7 @@ export default function LoginButton ({ style, text, onPress }: { style?: StylePr
 
     return (
         <TouchableHighlight
+        disabled={ disabled }
         onPress={() => onPress && onPress()}
         style={buttonStyle}
         underlayColor='#8DCFFF'

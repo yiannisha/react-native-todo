@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Text } from 'react-native'
 import { NativeBaseProvider, Box, Center } from 'native-base'
 
-import { pb } from '../App'
+import { useAuthStateContext } from '../contexts/AuthContext'
 
 import LoginInput from '../components/LoginInput'
 import LoginButton from '../components/LoginButton'
@@ -19,23 +19,17 @@ const formDataInitialValue: FormData = {
     passwordConfirm: '',
 }
 
-const loginWithEmail = (email: string, password: string) => pb.collection('users').authWithPassword(email, password)
-const registerWithEmail = (email: string, password: string, passwordConfirm: string) => {
-    return pb.collection('users').create({
-        email: email,
-        password: password,
-        passwordConfirm: passwordConfirm,
-        emailVisibility: true,
-    })
-}
-
 export default function Login ({ navigation }: { navigation: any }) {
 
     const [formData, setFormData] = useState<FormData>(formDataInitialValue)
     const [passConfInput, setPassConfInput] = useState<boolean>(false)
-    const [registerLoading, setRegisterLoading] = useState<boolean>(false)
-    const [loginLoading, setLoginLoading] = useState<boolean>(false)
-    const [error, setError] = useState<string | undefined>()
+
+    const {
+        state,
+        _login,
+        _register,
+    } = useAuthStateContext()
+    console.log(state.error)
 
     const clearForm = () => setFormData(formDataInitialValue)
 
@@ -43,62 +37,29 @@ export default function Login ({ navigation }: { navigation: any }) {
         
         if (!formData.passwordConfirm) {
             clearForm()
-            setError('')
             setPassConfInput(true)
             return
         }
 
-        setRegisterLoading(true)
-        try {
-            await registerWithEmail(email, password, passwordConfirm)
-            // account created successfully
-            setRegisterLoading(false)
-            clearForm()
-            // clear error
-            setError(undefined)
-            // go to todo screen
-            navigation.navigate('Todos')
-        }
-        catch (error: any) {
-            // account creation failed
-            console.error(error)
-            setRegisterLoading(false)
-            // show error in a nice way
-            setError(error.message)
-        }
+        _register(email, password, passwordConfirm)
     }
 
-    const login = async ({email, password}: FormData) => {
+    const login = ({email, password}: FormData) => {
         
         if (passConfInput) {
             clearForm()
-            setError('')
             setPassConfInput(false)
             return
         }
 
-        setLoginLoading(true)
-        try {
-            await loginWithEmail(email, password)
-            // account created successfully
-            setLoginLoading(false)
-            clearForm()
-            // clear error
-            setError(undefined)
-            // go to todo screen
-            navigation.navigate('Todos')
-        }
-        catch (error: any) {
-            // account creation failed
-            console.error(error)
-            setLoginLoading(false)
-            // show error in a nice way
-            setError(error.message)
-        }
+        _login(email, password)
+
     }
 
     const formOnChange = (key: string) => (value: string) => setFormData({ ...formData, [key]: value })
     
+    if (state.token) navigation.navigate('Todos')
+
     return (
         <NativeBaseProvider>
             <Center flex={1}>
@@ -127,12 +88,13 @@ export default function Login ({ navigation }: { navigation: any }) {
                         />
                     }
                     {
-                        error &&
-                        <Text style={{ color: 'red' }}>{ error }</Text>
+                        state.error &&
+                        // @ts-ignore
+                        <Text style={{ color: 'red' }}>{ state.error }</Text>
                     }
                     <Box my={5}>
-                        <LoginButton text={loginLoading ? 'Loading':'Login'} onPress={() => login(formData)} />
-                        <LoginButton style={{ marginTop: 5 }} text={registerLoading ? 'Loading':'Create Account'} onPress={() => register(formData)} />
+                        <LoginButton disabled={state.pending} text='Login' onPress={() => login(formData)} />
+                        <LoginButton disabled={state.pending} style={{ marginTop: 5 }} text='Create Account' onPress={() => register(formData)} />
                     </Box>
                 </Box>
             </Center>
