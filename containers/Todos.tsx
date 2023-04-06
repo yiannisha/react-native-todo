@@ -30,9 +30,8 @@ export default function Todos({ navigation }: { navigation: any }) {
     // redirect on logout
     if (!token) navigation.navigate('Login')
 
-    const todoElems = todos.map(todo => <Text key={todo.id}>{todo.content}</Text>)
+    const todoElems = Object.keys(todos).map((key: string) =>  <Text key={key}>{ `${todos[key]}` }</Text>)
 
-    console.log(token)
     return (
         <View style={mainStyles.container}>
             <View style={mainStyles.titleContainer}>

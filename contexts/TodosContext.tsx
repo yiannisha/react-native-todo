@@ -6,7 +6,7 @@ import { pb } from '../database'
 import { Todo, TodoState } from '../types'
 
 const initialValue: TodoState = {
-    todos: [],
+    todos: {},
 }
 
 const TodoStateContext = createContext<TodoState>(initialValue)
@@ -22,7 +22,7 @@ const useTodoState = () => {
 }
 
 const TodoStateContextProvider = ({ children }: { children: ReactNode }) => {
-    const [todos, setTodos] = useState<Todo[]>(initialValue.todos)
+    const [todos, setTodos] = useState<{ [id: string]: Todo }>(initialValue.todos)
     const { token } = useSelector(getAuth)
     
     // fetch all previous user's todos
@@ -35,7 +35,7 @@ const TodoStateContextProvider = ({ children }: { children: ReactNode }) => {
         }
         
         if (!token) {
-            setTodos([])
+            setTodos({})
 
             // debug
             // console.log('clearing todos')
@@ -44,11 +44,12 @@ const TodoStateContextProvider = ({ children }: { children: ReactNode }) => {
         if (token) {
             fetchTodos()
             .then(resp => {
-                const prevTodos: Todo[] = resp.map(todo => ({ id: todo.id, content: todo.content }))
-                setTodos([
+                const prevTodos: { [id: string]: Todo } = {}
+                resp.forEach(todo => prevTodos[todo.id] = todo.content)
+                setTodos({
                     ...todos,
-                    ...prevTodos,
-                ])
+                    ...prevTodos
+                })
 
                 // debug
                 // console.log('todos fetched!')
@@ -59,19 +60,30 @@ const TodoStateContextProvider = ({ children }: { children: ReactNode }) => {
 
     // subscribe to current user's todos
     pb.collection('todos').subscribe(`*`, function (e) {
-        console.log(e.record)
-        setTodos([
-            ...todos,
-            {
-                id: e.record.id,
-                content: e.record.content,
-            }
-        ])
+        const { action } = e
+        const { id } = e.record
+
+        // switch block to determine action
+        switch (action) {
+            case 'create':
+            case 'update':
+                let data = e.record.content
+                setTodos({
+                    ...todos,
+                    [id]: data,
+                })
+                break
+            
+            // case 'delete':
+            default:
+                const { [id]: value, ...newTodo } = todos
+                setTodos(newTodo)
+        }
+        
     });
 
-    console.log(todos)
     const value: TodoState = {
-        todos
+        todos: todos
     }
 
     return (

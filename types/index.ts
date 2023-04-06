@@ -17,7 +17,7 @@ export type Todo = {
 }
 
 export type TodoState = {
-    todos: Todo[],
+    todos: { [id: string]: Todo },
 }
 
 export type RootState = {
