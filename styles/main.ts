@@ -16,15 +16,18 @@ export const mainStyles = StyleSheet.create({
     titleContainer: {
         flex: 1,
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         justifyContent: 'flex-start',
+        marginLeft: 50,
+        marginRight: 50,
+        marginTop: 30,
     },
     title: {
         color: '#4F4F4F',
         fontSize: 50,
         fontWeight: 'bold',
         textAlign: 'left',
-        marginTop: 30,
-        marginLeft: 50,
+        // marginTop: 30,
+        // marginLeft: 50,
     }
 })

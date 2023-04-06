@@ -8,8 +8,3 @@ global.EventSource = eventsource
 const serverURL = 'https://testdbforyiannis.fly.dev';
 
 export const pb = new PocketBase(serverURL)
-
-export const collections = {
-    USERS: 'users',
-    NOTES: 'todos',
-}

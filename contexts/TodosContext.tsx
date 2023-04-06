@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useSelector } from 'react-redux'
 
-import { pb } from './pb'
+import { getAuth } from '../selectors'
+import { pb } from '../database'
 import { Todo, TodoState } from '../types'
-import { useAuthStateContext } from './AuthContext'
 
 const initialValue: TodoState = {
     todos: [],
@@ -22,19 +23,25 @@ const useTodoState = () => {
 
 const TodoStateContextProvider = ({ children }: { children: ReactNode }) => {
     const [todos, setTodos] = useState<Todo[]>(initialValue.todos)
-    const { state } = useAuthStateContext()
-    // const userId = pb.authStore.model?.id
-
+    const { token } = useSelector(getAuth)
+    
     // fetch all previous user's todos
     useEffect(() => {
-
+        
         const fetchTodos = async () => {
             return await pb.collection('todos').getFullList({
                 sort: 'created',
             })
         }
+        
+        if (!token) {
+            setTodos([])
 
-        if (state.token) {
+            // debug
+            // console.log('clearing todos')
+        }
+
+        if (token) {
             fetchTodos()
             .then(resp => {
                 const prevTodos: Todo[] = resp.map(todo => ({ id: todo.id, content: todo.content }))
@@ -42,13 +49,17 @@ const TodoStateContextProvider = ({ children }: { children: ReactNode }) => {
                     ...todos,
                     ...prevTodos,
                 ])
+
+                // debug
+                // console.log('todos fetched!')
             })
         }
 
-    }, [state.token])
+    }, [token])
 
     // subscribe to current user's todos
     pb.collection('todos').subscribe(`*`, function (e) {
+        console.log(e.record)
         setTodos([
             ...todos,
             {
@@ -58,6 +69,7 @@ const TodoStateContextProvider = ({ children }: { children: ReactNode }) => {
         ])
     });
 
+    console.log(todos)
     const value: TodoState = {
         todos
     }

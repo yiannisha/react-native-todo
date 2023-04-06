@@ -1,7 +1,7 @@
 export type AuthState = {
     token: string | null,
     pending: boolean,
-    error: Error | null,
+    error: string | null,
 }
 
 export type AuthStateContextType = {
@@ -18,4 +18,8 @@ export type Todo = {
 
 export type TodoState = {
     todos: Todo[],
+}
+
+export type RootState = {
+    authState: AuthState,
 }

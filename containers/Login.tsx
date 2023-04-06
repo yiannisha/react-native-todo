@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { Text } from 'react-native'
 import { NativeBaseProvider, Box, Center } from 'native-base'
+import { useSelector, useDispatch } from 'react-redux'
 
-import { useAuthStateContext } from '../contexts/AuthContext'
+import { getAuth } from '../selectors'
+import { _login, _register } from '../slices/auth'
 
 import LoginInput from '../components/LoginInput'
 import LoginButton from '../components/LoginButton'
@@ -19,16 +21,14 @@ const formDataInitialValue: FormData = {
     passwordConfirm: '',
 }
 
-export default function Login ({ navigation }: { navigation: any }) {
+export default function Login ({ navigation }: { navigation?: any }) {
+
+    const dispatch = useDispatch()
 
     const [formData, setFormData] = useState<FormData>(formDataInitialValue)
     const [passConfInput, setPassConfInput] = useState<boolean>(false)
 
-    const {
-        state,
-        _login,
-        _register,
-    } = useAuthStateContext()
+    const { error, pending, token } = useSelector(getAuth)
 
     const clearForm = () => setFormData(formDataInitialValue)
 
@@ -40,7 +40,10 @@ export default function Login ({ navigation }: { navigation: any }) {
             return
         }
 
-        _register(email, password, passwordConfirm)
+        // @ts-ignore
+        dispatch(_register({ email: email, password: password, passwordConfirm: passwordConfirm}))
+        clearForm()
+        setPassConfInput(false)
     }
 
     const login = ({email, password}: FormData) => {
@@ -51,13 +54,15 @@ export default function Login ({ navigation }: { navigation: any }) {
             return
         }
 
-        _login(email, password)
+        // @ts-ignore
+        dispatch(_login({ email: email, password: password }))
+        clearForm()
 
     }
 
     const formOnChange = (key: string) => (value: string) => setFormData({ ...formData, [key]: value })
     
-    if (state.token) navigation.navigate('Todos')
+    if (token) navigation?.navigate('Todos')
 
     return (
         <NativeBaseProvider>
@@ -87,13 +92,13 @@ export default function Login ({ navigation }: { navigation: any }) {
                         />
                     }
                     {
-                        state.error &&
+                        error &&
                         // @ts-ignore
-                        <Text style={{ color: 'red' }}>{ state.error }</Text>
+                        <Text style={{ color: 'red' }}>{ error }</Text>
                     }
                     <Box my={5}>
-                        <LoginButton disabled={state.pending} text='Login' onPress={() => login(formData)} />
-                        <LoginButton disabled={state.pending} style={{ marginTop: 5 }} text='Create Account' onPress={() => register(formData)} />
+                        <LoginButton disabled={pending} text='Login' onPress={() => login(formData)} />
+                        <LoginButton disabled={pending} style={{ marginTop: 5 }} text='Create Account' onPress={() => register(formData)} />
                     </Box>
                 </Box>
             </Center>

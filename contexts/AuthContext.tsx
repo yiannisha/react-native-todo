@@ -1,6 +1,9 @@
+// 
+// DEPRECATED: DON'T USE - DUE TO THE EFFECTS OF THE REACT-NAVIGATION STATE IS LOST ON EACH NAVIGATION
+// 
 import React, { ReactNode, createContext, useContext, useState } from 'react'
 
-import { pb } from './pb'
+import { pb } from '../database'
 import { AuthState, AuthStateContextType } from '../types'
 
 const stateInitialValue: AuthState = {
@@ -30,7 +33,7 @@ const useAuthStateContext = () => {
 
 const AuthStateContextProvider = ({ children }: { children: ReactNode}) => {
     const [authState, setAuthState] = useState<AuthState>(stateInitialValue)
-    
+
     // cool way to get all setters, doesn't lose any type checking because of the type checks in the function
     // const getSetter = (key: string) => (value: any) => setAuthState({ ...authState, [key]: value })
     
@@ -74,7 +77,7 @@ async function _login(
     try {
 
         const { token } = await pb.collection('users').authWithPassword(email, password)
-        
+        console.log(token)
         // account created successfully
         setToken(token)
         setPending(false)
