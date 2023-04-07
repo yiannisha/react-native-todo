@@ -30,14 +30,14 @@ const _register = createAsyncThunk(
     async({ email, password, passwordConfirm }: { email: string, password: string, passwordConfirm: string }, { rejectWithValue }) => {
 
         try {
-            pb.collection('users').create({
+            await pb.collection('users').create({
                             email: email,
                             password: password,
                             passwordConfirm: passwordConfirm,
                             emailVisibility: true,
-                        })
-            const { token } = await pb.collection('users').authWithPassword(email, password)
+                })
 
+            const { token } = await pb.collection('users').authWithPassword(email, password)
             return {
                 token: token
             }
