@@ -1,14 +1,17 @@
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { Provider } from 'react-redux'
+import { Provider, useDispatch, useSelector } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit'
 
 import { AuthStateContextProvider } from './contexts/AuthContext'
 import { TodoStateContextProvider } from './contexts/TodosContext'
+import { _intializeToken } from './slices/auth'
 
 import Login from './containers/Login'
 import Todos from "./containers/Todos"
 import rootReducer from './slices'
+import { useEffect } from 'react'
+import { getAuth } from './selectors'
 
 const Stack = createNativeStackNavigator()
 
@@ -17,11 +20,22 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware()
 })
 
-export default function App() {
+const Router = () => {
+  
+  const { token } = useSelector(getAuth)
+  
+  const dispatch = useDispatch()
+  
+  // @ts-ignore
+  const initToken = () => dispatch(_intializeToken())
+
+  useEffect(() => {
+    initToken()
+  }, [token])
+
   return (
-      <Provider store={store}>
-        <TodoStateContextProvider>
-          <NavigationContainer>
+    <TodoStateContextProvider>
+      <NavigationContainer>
             <Stack.Navigator
               initialRouteName='Login'
               screenOptions={{
@@ -32,6 +46,13 @@ export default function App() {
             </Stack.Navigator>
           </NavigationContainer>
         </TodoStateContextProvider>
+  )
+}
+
+export default function App() {
+  return (
+      <Provider store={store}>
+        <Router />        
       </Provider>
   )
 }

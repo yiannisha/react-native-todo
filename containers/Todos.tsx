@@ -16,11 +16,12 @@ export default function Todos({ navigation }: { navigation: any }) {
     
     // dispatch
     const dispatch = useDispatch()
+    // @ts-ignore
     const logout = () => dispatch(_logout())
 
     // selectors
-    const { token } = useSelector(getAuth)
-    
+    const { token, user } = useSelector(getAuth)
+
     // context
     const { todos } = useTodoState()
     
